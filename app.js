@@ -6,7 +6,6 @@ if ('serviceWorker' in navigator) {
 
 const ADMIN_PASSWORD = "7860";
 
-// Admin Panel Modal Handler
 function openAdminPanel() {
   document.getElementById('adminModal').style.display = "block";
 }
@@ -29,7 +28,6 @@ function verifyAdmin() {
   }
 }
 
-// User List Management (Stored in localStorage)
 function getUsersFromStorage() {
   return JSON.parse(localStorage.getItem('registeredUsersList')) || [];
 }
@@ -41,10 +39,10 @@ function saveUsersToStorage(users) {
 function addNewUser() {
   const name = document.getElementById('newUserName').value.trim();
   const phone = document.getElementById('newUserPhone').value.trim();
-  const customCode = document.getElementById('newUserCode').value.trim();
+  const customCode = document.getElementById('newUserCode').value.trim().toUpperCase();
 
-  if (!name || phone.length !== 10 || isNaN(phone) || customCode.length !== 4) {
-    alert("Kripya sabhi details sahi bharein (Phone 10-digit, Secret Code 4-digit)!");
+  if (!name || phone.length !== 10 || isNaN(phone) || customCode.length !== 8) {
+    alert("Kripya Mobile 10-digit aur Secret Code exact 8-character (Numbers/Letters) ka bharein!");
     return;
   }
 
@@ -53,7 +51,6 @@ function addNewUser() {
 
   let users = getUsersFromStorage();
   
-  // Check agar user pehle se list me hai
   const existingIndex = users.findIndex(u => u.phone === phone);
   if (existingIndex !== -1) {
     users[existingIndex] = { name, phone, customCode, fullKey, active: true };
@@ -63,13 +60,12 @@ function addNewUser() {
 
   saveUsersToStorage(users);
   
-  // Clear inputs
   document.getElementById('newUserName').value = "";
   document.getElementById('newUserPhone').value = "";
   document.getElementById('newUserCode').value = "";
   
   renderUserList();
-  alert(`User ${name} successfully added! Full Key is: ${fullKey}`);
+  alert(`User ${name} added! Generated Key: ${fullKey}`);
 }
 
 function toggleUserActive(index) {
@@ -116,7 +112,6 @@ function renderUserList() {
   });
 }
 
-// User Login Check Logic
 const lockScreen = document.getElementById('lockScreen');
 const mainAppContent = document.getElementById('mainAppContent');
 const userPhoneInput = document.getElementById('userPhoneInput');
@@ -143,7 +138,7 @@ function checkActivation() {
 
 activateBtn.addEventListener('click', () => {
   const phone = userPhoneInput.value.trim();
-  const userKey = activationKeyInput.value.trim();
+  const userKey = activationKeyInput.value.trim().toUpperCase();
 
   if (phone.length !== 10 || isNaN(phone)) {
     lockMsg.style.color = "#ef4444";
