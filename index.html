@@ -8,8 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <style>
-    /* Table Styling for Admin Panel */
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
     .admin-table th, .admin-table td { border: 1px solid #334155; padding: 6px; text-align: center; color: #fff; }
     .admin-table th { background: #0f172a; color: #38bdf8; }
   </style>
@@ -22,7 +21,7 @@
       <button onclick="openAdminPanel()" style="background:transparent; border:none; color:#94a3b8; font-size:11px; margin-top:4px; cursor:pointer;">⚙️ Master Admin Panel</button>
     </header>
 
-    <!-- 🔐 Admin Modal / Master Panel -->
+    <!-- 🔐 Master Admin Modal -->
     <div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; padding:15px; box-sizing:border-box; overflow-y:auto;">
       <div class="card" style="border: 2px solid #38bdf8; max-width: 500px; margin: 20px auto;">
         <h2>🔐 Master Admin Panel</h2>
@@ -38,7 +37,7 @@
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
             <input type="text" id="newUserName" placeholder="Driver Name" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px;">
             <input type="tel" id="newUserPhone" placeholder="Mobile Number (10 Digit)" maxlength="10" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px;">
-            <input type="text" id="newUserCode" placeholder="Aapka Secret 4-Digit Code (ex: 8899)" maxlength="4" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px;">
+            <input type="text" id="newUserCode" placeholder="8 Character Secret Code (Alphabet/Number)" maxlength="8" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; text-transform:uppercase;">
             <button class="btn" onclick="addNewUser()" style="background:#10b981;">Save User & Key</button>
           </div>
 
@@ -58,7 +57,6 @@
                 </tr>
               </thead>
               <tbody id="userTableBody">
-                <!-- User rows javascript se aayengi -->
               </tbody>
             </table>
           </div>
@@ -68,10 +66,10 @@
       </div>
     </div>
 
-    <!-- 🔒 User Login / Lock Screen -->
+    <!-- 🔒 User Lock Screen -->
     <div id="lockScreen" class="card" style="border: 2px solid #ef4444; text-align: center;">
       <h2 style="color: #ef4444;">🔒 App Locked</h2>
-      <p style="font-size: 13px; margin: 8px 0; color: #cbd5e1;">App activate karne ke liye apna registered mobile number aur Key daalein.</p>
+      <p style="font-size: 13px; margin: 8px 0; color: #cbd5e1;">App activate karne ke liye apna registered mobile number aur Activation Key daalein.</p>
       
       <div class="form-group" style="text-align: left; margin-top: 10px;">
         <label for="userPhoneInput">Mobile Number:</label>
@@ -80,7 +78,7 @@
 
       <div class="form-group" style="text-align: left;">
         <label for="activationKeyInput">Activation Key:</label>
-        <input type="text" id="activationKeyInput" placeholder="Key yahan daalein">
+        <input type="text" id="activationKeyInput" placeholder="Key yahan daalein" style="text-transform:uppercase;">
       </div>
 
       <button id="activateBtn" class="btn" style="background-color: #2563eb; width: 100%;">Activate Karein</button>
