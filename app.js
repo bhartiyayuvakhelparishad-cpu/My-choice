@@ -4,10 +4,9 @@ if ('serviceWorker' in navigator) {
     .catch((err) => console.log("SW Fail:", err));
 }
 
-// 🔐 Admin & Secret Code Settings
-const ADMIN_PASSWORD = "7860";     // Admin panel kholne ka password (ise aap badal sakte hain)
-const SECRET_SUFFIX = "4488";      // Aapka khud ka secret 4-digit code jo key ke aage jurega
+const ADMIN_PASSWORD = "7860";
 
+// Admin Panel Modal Handler
 function openAdminPanel() {
   document.getElementById('adminModal').style.display = "block";
 }
@@ -17,8 +16,6 @@ function closeAdminPanel() {
   document.getElementById('adminLoginBox').style.display = "block";
   document.getElementById('adminDashboard').style.display = "none";
   document.getElementById('adminPassInput').value = "";
-  document.getElementById('checkPhoneInput').value = "";
-  document.getElementById('adminKeyResult').innerHTML = "";
 }
 
 function verifyAdmin() {
@@ -26,24 +23,100 @@ function verifyAdmin() {
   if (pass === ADMIN_PASSWORD) {
     document.getElementById('adminLoginBox').style.display = "none";
     document.getElementById('adminDashboard').style.display = "block";
+    renderUserList();
   } else {
     alert("❌ Galat Admin Password!");
   }
 }
 
-// Admin panel se kisi bhi number ki key nikalne ka tareeqa
-function generateKeyForAdmin() {
-  const phone = document.getElementById('checkPhoneInput').value.trim();
-  if (phone.length !== 10 || isNaN(phone)) {
-    alert("Kripya sahi 10 digit ka mobile number daalein!");
-    return;
-  }
-  const last4 = phone.slice(-4);
-  const correctKey = last4 + SECRET_SUFFIX; // Mobile ke aakhri 4 ank + Aapka secret 4 ank
-  document.getElementById('adminKeyResult').innerHTML = `Key: <span style="color:#10b981; background:#0f172a; padding:4px 8px; border-radius:4px;">${correctKey}</span>`;
+// User List Management (Stored in localStorage)
+function getUsersFromStorage() {
+  return JSON.parse(localStorage.getItem('registeredUsersList')) || [];
 }
 
-// User Activation Logic
+function saveUsersToStorage(users) {
+  localStorage.setItem('registeredUsersList', JSON.stringify(users));
+}
+
+function addNewUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const phone = document.getElementById('newUserPhone').value.trim();
+  const customCode = document.getElementById('newUserCode').value.trim();
+
+  if (!name || phone.length !== 10 || isNaN(phone) || customCode.length !== 4) {
+    alert("Kripya sabhi details sahi bharein (Phone 10-digit, Secret Code 4-digit)!");
+    return;
+  }
+
+  const last4 = phone.slice(-4);
+  const fullKey = last4 + customCode;
+
+  let users = getUsersFromStorage();
+  
+  // Check agar user pehle se list me hai
+  const existingIndex = users.findIndex(u => u.phone === phone);
+  if (existingIndex !== -1) {
+    users[existingIndex] = { name, phone, customCode, fullKey, active: true };
+  } else {
+    users.push({ name, phone, customCode, fullKey, active: true });
+  }
+
+  saveUsersToStorage(users);
+  
+  // Clear inputs
+  document.getElementById('newUserName').value = "";
+  document.getElementById('newUserPhone').value = "";
+  document.getElementById('newUserCode').value = "";
+  
+  renderUserList();
+  alert(`User ${name} successfully added! Full Key is: ${fullKey}`);
+}
+
+function toggleUserActive(index) {
+  let users = getUsersFromStorage();
+  users[index].active = !users[index].active;
+  saveUsersToStorage(users);
+  renderUserList();
+}
+
+function deleteUser(index) {
+  if (confirm("Kya aap is user ko delete karna chahte hain?")) {
+    let users = getUsersFromStorage();
+    users.splice(index, 1);
+    saveUsersToStorage(users);
+    renderUserList();
+  }
+}
+
+function renderUserList() {
+  const users = getUsersFromStorage();
+  const tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = '';
+
+  if (users.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#cbd5e1;">Koi user registered nahi hai.</td></tr>`;
+    return;
+  }
+
+  users.forEach((user, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${user.name}</td>
+      <td>${user.phone}</td>
+      <td>${user.customCode}</td>
+      <td style="color:#38bdf8; font-weight:bold;">${user.fullKey}</td>
+      <td>
+        <input type="checkbox" ${user.active ? 'checked' : ''} onchange="toggleUserActive(${index})">
+      </td>
+      <td>
+        <button onclick="deleteUser(${index})" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:2px 6px; cursor:pointer;">X</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// User Login Check Logic
 const lockScreen = document.getElementById('lockScreen');
 const mainAppContent = document.getElementById('mainAppContent');
 const userPhoneInput = document.getElementById('userPhoneInput');
@@ -53,7 +126,12 @@ const lockMsg = document.getElementById('lockMsg');
 
 function checkActivation() {
   const isActivated = localStorage.getItem('appActivated');
-  if (isActivated === "true") {
+  const activePhone = localStorage.getItem('registeredPhone');
+  const users = getUsersFromStorage();
+
+  const currentUser = users.find(u => u.phone === activePhone);
+
+  if (isActivated === "true" && currentUser && currentUser.active) {
     lockScreen.style.display = "none";
     mainAppContent.style.display = "block";
     initApp();
@@ -69,24 +147,30 @@ activateBtn.addEventListener('click', () => {
 
   if (phone.length !== 10 || isNaN(phone)) {
     lockMsg.style.color = "#ef4444";
-    lockMsg.textContent = "❌ कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें!";
+    lockMsg.textContent = "❌ Kripya sahi 10-digit mobile number daalein!";
     return;
   }
 
-  const last4 = phone.slice(-4);
-  const expectedKey = last4 + SECRET_SUFFIX;
+  const users = getUsersFromStorage();
+  const matchedUser = users.find(u => u.phone === phone && u.fullKey === userKey);
 
-  if (userKey === expectedKey) {
+  if (matchedUser) {
+    if (!matchedUser.active) {
+      lockMsg.style.color = "#ef4444";
+      lockMsg.textContent = "⛔ Aapka account Admin dwara Disabled hai!";
+      return;
+    }
+
     localStorage.setItem('appActivated', "true");
     localStorage.setItem('registeredPhone', phone);
     lockMsg.style.color = "#10b981";
-    lockMsg.textContent = "✅ ऐप सफलतापूर्वक एक्टिवेट हो गया है!";
+    lockMsg.textContent = "✅ App Activate Ho Gaya!";
     setTimeout(() => {
       checkActivation();
     }, 1500);
   } else {
     lockMsg.style.color = "#ef4444";
-    lockMsg.textContent = "❌ गलत Activation Key! कृपया सही की दर्ज करें।";
+    lockMsg.textContent = "❌ Galat Mobile Number ya Activation Key!";
   }
 });
 
@@ -137,7 +221,7 @@ saveSettingsBtn.addEventListener('click', () => {
     localStorage.setItem('minDistVal', newDist);
     saveMsg.textContent = "✅ सेटिंग्स सफलतापूर्वक सेव हो गई हैं!";
     setTimeout(() => {
-      saveMsg.textContent = "", 3000;
+      saveMsg.textContent = "";
     }, 3000);
   } else {
     alert("कृपया सभी सेटिंग्स सही भरें!");
@@ -249,16 +333,11 @@ function checkRide(appName, fare, tripDistance, pickupDistance, location) {
   return { accept: true, reason: `🎉 ${appName} Ride Accepted! Rules match ho gaye hain.` };
 }
 
-testRideBtn.addEventListener('click', `testApp` , () => {
-  // test ride handler
-});
-
-// Fix for test ride button click listener
 testRideBtn.addEventListener('click', () => {
   const appName = document.getElementById('testApp').value;
   const fare = parseFloat(document.getElementById('testFare').value);
   const dist = parseFloat(document.getElementById('testDist').value);
-  const pickup = parseFloat(document.getElementById('testPickup.value') || document.getElementById('testPickup').value);
+  const pickup = parseFloat(document.getElementById('testPickup').value);
   const loc = document.getElementById('testLoc').value;
 
   const result = checkRide(appName, fare, dist, pickup, loc);
