@@ -8,10 +8,10 @@ let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage से डेटा लोड करना
+// LocalStorage se save ki hui values load karna
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
-let minFareVal = localStorage.getItem('minFareVal') !== null ? localStorage.getItem('minFareVal') : "125";
-let minDistVal = localStorage.getItem('minDistVal') !== null ? localStorage.getItem('minDistVal') : "5";
+let savedFare = localStorage.getItem('minFareVal') || "125";
+let savedDist = localStorage.getItem('minDistVal') || "5";
 
 const toggleBtn = document.getElementById('toggleBtn');
 const statusBox = document.getElementById('statusBox');
@@ -24,18 +24,28 @@ const cooldownMsg = document.getElementById('cooldownMsg');
 
 const minFareInput = document.getElementById('minFare');
 const minDistInput = document.getElementById('minDist');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const saveMsg = document.getElementById('saveMsg');
 
-// अगर LocalStorage में वैल्यू है तो इनपुट में भरें, वरना खाली रखें
-minFareInput.value = minFareVal;
-minDistInput.value = minDistVal;
+// Input me saved value dikhana
+minFareInput.value = savedFare;
+minDistInput.value = savedDist;
 
-// जैसे ही यूजर टाइप करे, तुरंत सेव हो जाए (बिना रीसेट हुए)
-minFareInput.addEventListener('input', (e) => {
-  localStorage.setItem('minFareVal', e.target.value);
-});
+// Save button par click karne par hi settings permanent store hongi
+saveSettingsBtn.addEventListener('click', () => {
+  const newFare = minFareInput.value.trim();
+  const newDist = minDistInput.value.trim();
 
-minDistInput.addEventListener('input', (e) => {
-  localStorage.setItem('minDistVal', e.target.value);
+  if (newFare !== "" && newDist !== "") {
+    localStorage.setItem('minFareVal', newFare);
+    localStorage.setItem('minDistVal', newDist);
+    saveMsg.textContent = "✅ सेटिंग्स सफलतापूर्वक सेव हो गई हैं!";
+    setTimeout(() => {
+      saveMsg.textContent = "";
+    }, 3000);
+  } else {
+    alert("कृपया किराया और दूरी दोनों सही भरें!");
+  }
 });
 
 function renderAreas() {
@@ -78,7 +88,6 @@ toggleBtn.addEventListener('click', () => {
   }
 });
 
-// 1 मिनट का टाइमर चालू करने वाला फंक्शन
 function startCooldown() {
   isCooldown = true;
   let seconds = 60;
@@ -102,7 +111,7 @@ function checkRide(appName, fare, distance, location) {
   }
 
   if (isCooldown) {
-    return { accept: false, reason: "⏳ 1 मिनट का कूलडाउन टाइमर चल रहा है! अगली राइड ब्लॉक है।" };
+    return { accept: false, reason: "⏳ 1 मिनट का कूलडाउन टाइमर चल रहा है!" };
   }
 
   const isAppAllowed = document.getElementById(`app${appName}`).checked;
@@ -110,6 +119,7 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `${appName} राइड्स डिसेबल (बंद) की गई हैं!` };
   }
 
+  // Sirf save ki gayi values hi check hongi
   const minFare = parseFloat(localStorage.getItem('minFareVal')) || 0;
   const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
@@ -129,7 +139,6 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `यह एरिया (${location}) ब्लॉक लिस्ट में है!` };
   }
 
-  // जैसे ही राइड पास होगी, 1 मिनट का टाइमर शुरू हो जाएगा!
   startCooldown();
   return { accept: true, reason: `बढ़िया ${appName} राइड! एसेप्ट की जा रही है ✅` };
 }
