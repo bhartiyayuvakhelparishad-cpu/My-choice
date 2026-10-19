@@ -4,34 +4,52 @@ if ('serviceWorker' in navigator) {
     .catch((err) => console.log("SW Fail:", err));
 }
 
+// 🔐 Admin & Secret Code Settings
+const ADMIN_PASSWORD = "7860";     // Admin panel kholne ka password (ise aap badal sakte hain)
+const SECRET_SUFFIX = "4488";      // Aapka khud ka secret 4-digit code jo key ke aage jurega
+
+function openAdminPanel() {
+  document.getElementById('adminModal').style.display = "block";
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminModal').style.display = "none";
+  document.getElementById('adminLoginBox').style.display = "block";
+  document.getElementById('adminDashboard').style.display = "none";
+  document.getElementById('adminPassInput').value = "";
+  document.getElementById('checkPhoneInput').value = "";
+  document.getElementById('adminKeyResult').innerHTML = "";
+}
+
+function verifyAdmin() {
+  const pass = document.getElementById('adminPassInput').value.trim();
+  if (pass === ADMIN_PASSWORD) {
+    document.getElementById('adminLoginBox').style.display = "none";
+    document.getElementById('adminDashboard').style.display = "block";
+  } else {
+    alert("❌ Galat Admin Password!");
+  }
+}
+
+// Admin panel se kisi bhi number ki key nikalne ka tareeqa
+function generateKeyForAdmin() {
+  const phone = document.getElementById('checkPhoneInput').value.trim();
+  if (phone.length !== 10 || isNaN(phone)) {
+    alert("Kripya sahi 10 digit ka mobile number daalein!");
+    return;
+  }
+  const last4 = phone.slice(-4);
+  const correctKey = last4 + SECRET_SUFFIX; // Mobile ke aakhri 4 ank + Aapka secret 4 ank
+  document.getElementById('adminKeyResult').innerHTML = `Key: <span style="color:#10b981; background:#0f172a; padding:4px 8px; border-radius:4px;">${correctKey}</span>`;
+}
+
+// User Activation Logic
 const lockScreen = document.getElementById('lockScreen');
 const mainAppContent = document.getElementById('mainAppContent');
-const displayDeviceId = document.getElementById('displayDeviceId');
 const userPhoneInput = document.getElementById('userPhoneInput');
 const activationKeyInput = document.getElementById('activationKeyInput');
 const activateBtn = document.getElementById('activateBtn');
 const lockMsg = document.getElementById('lockMsg');
-
-// Har phone ke liye secret unique device ID
-function getOrCreateDeviceId() {
-  let devId = localStorage.getItem('myUniqueDeviceId');
-  if (!devId) {
-    devId = 'DEV-' + Math.floor(1000 + Math.random() * 9000);
-    localStorage.setItem('myUniqueDeviceId', devId);
-  }
-  return devId;
-}
-
-const myDeviceId = getOrCreateDeviceId();
-displayDeviceId.textContent = myDeviceId;
-
-// Secret Formula Logic (Phone Number + Device ID combo)
-function generateExpectedKey(phoneNum, deviceId) {
-  const phoneDigits = phoneNum.slice(-4); // Phone ke aakhri 4 digit
-  const devDigits = deviceId.replace(/\D/g, ''); // Device ID ke digits
-  const comboSecret = (parseInt(phoneDigits) + parseInt(devDigits)) * 5;
-  return 'KEY-' + comboSecret;
-}
 
 function checkActivation() {
   const isActivated = localStorage.getItem('appActivated');
@@ -47,7 +65,7 @@ function checkActivation() {
 
 activateBtn.addEventListener('click', () => {
   const phone = userPhoneInput.value.trim();
-  const userKey = activationKeyInput.value.trim().toUpperCase();
+  const userKey = activationKeyInput.value.trim();
 
   if (phone.length !== 10 || isNaN(phone)) {
     lockMsg.style.color = "#ef4444";
@@ -55,7 +73,8 @@ activateBtn.addEventListener('click', () => {
     return;
   }
 
-  const expectedKey = generateExpectedKey(phone, myDeviceId);
+  const last4 = phone.slice(-4);
+  const expectedKey = last4 + SECRET_SUFFIX;
 
   if (userKey === expectedKey) {
     localStorage.setItem('appActivated', "true");
@@ -67,7 +86,7 @@ activateBtn.addEventListener('click', () => {
     }, 1500);
   } else {
     lockMsg.style.color = "#ef4444";
-    lockMsg.textContent = "❌ गलत की (Key)! यह की इस फोन के लिए मान्य नहीं है।";
+    lockMsg.textContent = "❌ गलत Activation Key! कृपया सही की दर्ज करें।";
   }
 });
 
@@ -118,7 +137,7 @@ saveSettingsBtn.addEventListener('click', () => {
     localStorage.setItem('minDistVal', newDist);
     saveMsg.textContent = "✅ सेटिंग्स सफलतापूर्वक सेव हो गई हैं!";
     setTimeout(() => {
-      saveMsg.textContent = "";
+      saveMsg.textContent = "", 3000;
     }, 3000);
   } else {
     alert("कृपया सभी सेटिंग्स सही भरें!");
@@ -230,11 +249,16 @@ function checkRide(appName, fare, tripDistance, pickupDistance, location) {
   return { accept: true, reason: `🎉 ${appName} Ride Accepted! Rules match ho gaye hain.` };
 }
 
+testRideBtn.addEventListener('click', `testApp` , () => {
+  // test ride handler
+});
+
+// Fix for test ride button click listener
 testRideBtn.addEventListener('click', () => {
   const appName = document.getElementById('testApp').value;
   const fare = parseFloat(document.getElementById('testFare').value);
   const dist = parseFloat(document.getElementById('testDist').value);
-  const pickup = parseFloat(document.getElementById('testPickup').value);
+  const pickup = parseFloat(document.getElementById('testPickup.value') || document.getElementById('testPickup').value);
   const loc = document.getElementById('testLoc').value;
 
   const result = checkRide(appName, fare, dist, pickup, loc);
