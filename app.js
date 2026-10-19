@@ -4,7 +4,10 @@ if ('serviceWorker' in navigator) {
     .catch((err) => console.log("SW Fail:", err));
 }
 
-const ADMIN_PASSWORD = "7860";
+// Default Admin Password agar pehle se set na ho
+function getAdminPassword() {
+  return localStorage.getItem('customAdminPass') || "7860";
+}
 
 function openAdminPanel() {
   document.getElementById('adminModal').style.display = "block";
@@ -15,17 +18,32 @@ function closeAdminPanel() {
   document.getElementById('adminLoginBox').style.display = "block";
   document.getElementById('adminDashboard').style.display = "none";
   document.getElementById('adminPassInput').value = "";
+  document.getElementById('newAdminPass').value = "";
 }
 
 function verifyAdmin() {
   const pass = document.getElementById('adminPassInput').value.trim();
-  if (pass === ADMIN_PASSWORD) {
+  const currentAdminPass = getAdminPassword();
+
+  if (pass === currentAdminPass) {
     document.getElementById('adminLoginBox').style.display = "none";
     document.getElementById('adminDashboard').style.display = "block";
     renderUserList();
   } else {
     alert("❌ Galat Admin Password!");
   }
+}
+
+// Admin Password Change Function
+function changeAdminPassword() {
+  const newPass = document.getElementById('newAdminPass').value.trim();
+  if (newPass.length < 4) {
+    alert("Password kam se kam 4 characters ka hona chahiye!");
+    return;
+  }
+  localStorage.setItem('customAdminPass', newPass);
+  document.getElementById('newAdminPass').value = "";
+  alert("✅ Admin Password safalpurvak badal diya gaya hai!");
 }
 
 function getUsersFromStorage() {
@@ -42,7 +60,7 @@ function addNewUser() {
   const customCode = document.getElementById('newUserCode').value.trim().toUpperCase();
 
   if (!name || phone.length !== 10 || isNaN(phone) || customCode.length !== 8) {
-    alert("Kripya Mobile 10-digit aur Secret Code exact 8-character (Numbers/Letters) ka bharein!");
+    alert("Kripya Mobile 10-digit aur Secret Code exact 8-character ka bharein!");
     return;
   }
 
