@@ -4,11 +4,77 @@ if ('serviceWorker' in navigator) {
     .catch((err) => console.log("SW Fail:", err));
 }
 
+const lockScreen = document.getElementById('lockScreen');
+const mainAppContent = document.getElementById('mainAppContent');
+const displayDeviceId = document.getElementById('displayDeviceId');
+const userPhoneInput = document.getElementById('userPhoneInput');
+const activationKeyInput = document.getElementById('activationKeyInput');
+const activateBtn = document.getElementById('activateBtn');
+const lockMsg = document.getElementById('lockMsg');
+
+// Har phone ke liye secret unique device ID
+function getOrCreateDeviceId() {
+  let devId = localStorage.getItem('myUniqueDeviceId');
+  if (!devId) {
+    devId = 'DEV-' + Math.floor(1000 + Math.random() * 9000);
+    localStorage.setItem('myUniqueDeviceId', devId);
+  }
+  return devId;
+}
+
+const myDeviceId = getOrCreateDeviceId();
+displayDeviceId.textContent = myDeviceId;
+
+// Secret Formula Logic (Phone Number + Device ID combo)
+function generateExpectedKey(phoneNum, deviceId) {
+  const phoneDigits = phoneNum.slice(-4); // Phone ke aakhri 4 digit
+  const devDigits = deviceId.replace(/\D/g, ''); // Device ID ke digits
+  const comboSecret = (parseInt(phoneDigits) + parseInt(devDigits)) * 5;
+  return 'KEY-' + comboSecret;
+}
+
+function checkActivation() {
+  const isActivated = localStorage.getItem('appActivated');
+  if (isActivated === "true") {
+    lockScreen.style.display = "none";
+    mainAppContent.style.display = "block";
+    initApp();
+  } else {
+    lockScreen.style.display = "block";
+    mainAppContent.style.display = "none";
+  }
+}
+
+activateBtn.addEventListener('click', () => {
+  const phone = userPhoneInput.value.trim();
+  const userKey = activationKeyInput.value.trim().toUpperCase();
+
+  if (phone.length !== 10 || isNaN(phone)) {
+    lockMsg.style.color = "#ef4444";
+    lockMsg.textContent = "❌ कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें!";
+    return;
+  }
+
+  const expectedKey = generateExpectedKey(phone, myDeviceId);
+
+  if (userKey === expectedKey) {
+    localStorage.setItem('appActivated', "true");
+    localStorage.setItem('registeredPhone', phone);
+    lockMsg.style.color = "#10b981";
+    lockMsg.textContent = "✅ ऐप सफलतापूर्वक एक्टिवेट हो गया है!";
+    setTimeout(() => {
+      checkActivation();
+    }, 1500);
+  } else {
+    lockMsg.style.color = "#ef4444";
+    lockMsg.textContent = "❌ गलत की (Key)! यह की इस फोन के लिए मान्य नहीं है।";
+  }
+});
+
 let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage se values load karna
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
 let savedFare = localStorage.getItem('minFareVal') || "125";
 let savedPerKmFare = localStorage.getItem('minPerKmFareVal') || "7.50";
@@ -31,13 +97,14 @@ const minDistInput = document.getElementById('minDist');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const saveMsg = document.getElementById('saveMsg');
 
-// Saved values set karna
-minFareInput.value = savedFare;
-minPerKmFareInput.value = savedPerKmFare;
-maxPickupDistInput.value = savedMaxPickup;
-minDistInput.value = savedDist;
+function initApp() {
+  minFareInput.value = savedFare;
+  minPerKmFareInput.value = savedPerKmFare;
+  maxPickupDistInput.value = savedMaxPickup;
+  minDistInput.value = savedDist;
+  renderAreas();
+}
 
-// Settings Save Button Logic
 saveSettingsBtn.addEventListener('click', () => {
   const newFare = minFareInput.value.trim();
   const newPerKm = minPerKmFareInput.value.trim();
@@ -98,7 +165,6 @@ toggleBtn.addEventListener('click', () => {
   }
 });
 
-// Cooldown start karna
 function startCooldown() {
   isCooldown = true;
   let seconds = 60;
@@ -116,7 +182,6 @@ function startCooldown() {
   }, 1000);
 }
 
-// Main Logic Check Function
 function checkRide(appName, fare, tripDistance, pickupDistance, location) {
   if (!isActive) {
     return { accept: false, reason: "Filter band hai" };
@@ -136,28 +201,23 @@ function checkRide(appName, fare, tripDistance, pickupDistance, location) {
   const maxPickupDist = parseFloat(localStorage.getItem('maxPickupDistVal')) || 999;
   const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
-  // 1. Minimum Total Fare Check
   if (fare < minFare) {
     return { accept: false, reason: `Ignored: Total fare kam hai (₹${fare} < ₹${minFare})` };
   }
 
-  // 2. Per KM Fare Check (e.g., ₹7.50 / KM)
   const actualPerKm = fare / (tripDistance || 1);
   if (actualPerKm < minPerKmFare) {
     return { accept: false, reason: `Ignored: Per KM fare kam hai (₹${actualPerKm.toFixed(2)}/KM < ₹${minPerKmFare}/KM)` };
   }
 
-  // 3. Pickup Distance Check (e.g., Max 1.5 KM)
   if (pickupDistance > maxPickupDist) {
     return { accept: false, reason: `Ignored: Pickup distance zyada hai (${pickupDistance} KM > ${maxPickupDist} KM)` };
   }
 
-  // 4. Trip Distance Check
   if (tripDistance < minDist) {
     return { accept: false, reason: `Ignored: Trip distance kam hai (${tripDistance} KM < ${minDist} KM)` };
   }
 
-  // 5. Blocked Area Check
   const isBlocked = blockedAreas.some(area => 
     location.toLowerCase().includes(area.toLowerCase())
   );
@@ -166,7 +226,6 @@ function checkRide(appName, fare, tripDistance, pickupDistance, location) {
     return { accept: false, reason: `Ignored: Area (${location}) blocked list me hai!` };
   }
 
-  // AGAR SAARI CONDITIONS PASS HONGI TOH HI ACCEPT HOGA
   startCooldown();
   return { accept: true, reason: `🎉 ${appName} Ride Accepted! Rules match ho gaye hain.` };
 }
@@ -186,8 +245,8 @@ testRideBtn.addEventListener('click', () => {
     alert(`🚨 RIDE ACCEPTED (${appName})!\n\nRules Match! 1 Min cooldown shuru ho gaya hai.`);
   } else {
     testResult.style.color = "#f59e0b";
-    testResult.textContent = "🟡 " + result.reason + " (Ride ko ignore kar diya gaya hai, reject nahi kiya gaya).";
+    testResult.textContent = "🟡 " + result.reason + " (Ride ignore kar di gayi hai).";
   }
 });
 
-renderAreas();
+checkActivation();
