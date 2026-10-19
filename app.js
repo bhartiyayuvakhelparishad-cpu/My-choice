@@ -8,7 +8,7 @@ let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage से डेटा लोड करना (अगर पहले से सेव है तो वही आएगा)
+// LocalStorage से डेटा लोड करना
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
 let minFareVal = localStorage.getItem('minFareVal') !== null ? localStorage.getItem('minFareVal') : "125";
 let minDistVal = localStorage.getItem('minDistVal') !== null ? localStorage.getItem('minDistVal') : "5";
@@ -22,14 +22,14 @@ const testRideBtn = document.getElementById('testRideBtn');
 const testResult = document.getElementById('testResult');
 const cooldownMsg = document.getElementById('cooldownMsg');
 
-// इनपुट बॉक्स में सेव की गई वैल्यू सेट करना
 const minFareInput = document.getElementById('minFare');
 const minDistInput = document.getElementById('minDist');
 
+// अगर LocalStorage में वैल्यू है तो इनपुट में भरें, वरना खाली रखें
 minFareInput.value = minFareVal;
 minDistInput.value = minDistVal;
 
-// जैसे ही यूजर किराया या दूरी बदले, तुरंत LocalStorage में परमानेंट सेव हो जाए
+// जैसे ही यूजर टाइप करे, तुरंत सेव हो जाए (बिना रीसेट हुए)
 minFareInput.addEventListener('input', (e) => {
   localStorage.setItem('minFareVal', e.target.value);
 });
@@ -78,6 +78,7 @@ toggleBtn.addEventListener('click', () => {
   }
 });
 
+// 1 मिनट का टाइमर चालू करने वाला फंक्शन
 function startCooldown() {
   isCooldown = true;
   let seconds = 60;
@@ -101,7 +102,7 @@ function checkRide(appName, fare, distance, location) {
   }
 
   if (isCooldown) {
-    return { accept: false, reason: "1 मिनट का टाइमर चल रहा है! नई राइड रोकी गई।" };
+    return { accept: false, reason: "⏳ 1 मिनट का कूलडाउन टाइमर चल रहा है! अगली राइड ब्लॉक है।" };
   }
 
   const isAppAllowed = document.getElementById(`app${appName}`).checked;
@@ -109,7 +110,6 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `${appName} राइड्स डिसेबल (बंद) की गई हैं!` };
   }
 
-  // अब यह हमेशा लेटेस्ट सेव वैल्यू चेक करेगा
   const minFare = parseFloat(localStorage.getItem('minFareVal')) || 0;
   const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
@@ -129,6 +129,7 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `यह एरिया (${location}) ब्लॉक लिस्ट में है!` };
   }
 
+  // जैसे ही राइड पास होगी, 1 मिनट का टाइमर शुरू हो जाएगा!
   startCooldown();
   return { accept: true, reason: `बढ़िया ${appName} राइड! एसेप्ट की जा रही है ✅` };
 }
@@ -144,7 +145,7 @@ testRideBtn.addEventListener('click', () => {
   if (result.accept) {
     testResult.style.color = "#10b981";
     testResult.textContent = "🟢 " + result.reason;
-    alert(`🚨 RIDE ACCEPTED (${appName})!\nकृपया अन्य ऐप्स (Ola/Uber) को बंद करें!`);
+    alert(`🚨 RIDE ACCEPTED (${appName})!\n1 मिनट का कूलडाउन शुरू हो गया है।`);
   } else {
     testResult.style.color = "#ef4444";
     testResult.textContent = "🔴 " + result.reason;
