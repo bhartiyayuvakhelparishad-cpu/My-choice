@@ -8,10 +8,10 @@ let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage से पुराने डेटा लोड करना
+// LocalStorage से डेटा लोड करना (अगर पहले से सेव है तो वही आएगा)
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
-let minFareVal = localStorage.getItem('minFareVal') || "125";
-let minDistVal = localStorage.getItem('minDistVal') || "5";
+let minFareVal = localStorage.getItem('minFareVal') !== null ? localStorage.getItem('minFareVal') : "125";
+let minDistVal = localStorage.getItem('minDistVal') !== null ? localStorage.getItem('minDistVal') : "5";
 
 const toggleBtn = document.getElementById('toggleBtn');
 const statusBox = document.getElementById('statusBox');
@@ -22,14 +22,19 @@ const testRideBtn = document.getElementById('testRideBtn');
 const testResult = document.getElementById('testResult');
 const cooldownMsg = document.getElementById('cooldownMsg');
 
-document.getElementById('minFare').value = minFareVal;
-document.getElementById('minDist').value = minDistVal;
+// इनपुट बॉक्स में सेव की गई वैल्यू सेट करना
+const minFareInput = document.getElementById('minFare');
+const minDistInput = document.getElementById('minDist');
 
-// वैल्यू चेंज होते ही सेव करना
-document.getElementById('minFare').addEventListener('input', (e) => {
+minFareInput.value = minFareVal;
+minDistInput.value = minDistVal;
+
+// जैसे ही यूजर किराया या दूरी बदले, तुरंत LocalStorage में परमानेंट सेव हो जाए
+minFareInput.addEventListener('input', (e) => {
   localStorage.setItem('minFareVal', e.target.value);
 });
-document.getElementById('minDist').addEventListener('input', (e) => {
+
+minDistInput.addEventListener('input', (e) => {
   localStorage.setItem('minDistVal', e.target.value);
 });
 
@@ -73,7 +78,6 @@ toggleBtn.addEventListener('click', () => {
   }
 });
 
-// 1 मिनट का टाइमर चालू करना
 function startCooldown() {
   isCooldown = true;
   let seconds = 60;
@@ -91,7 +95,6 @@ function startCooldown() {
   }, 1000);
 }
 
-// मुख्य राइड चेकिंग लॉजिक
 function checkRide(appName, fare, distance, location) {
   if (!isActive) {
     return { accept: false, reason: "फिल्टर बंद है" };
@@ -101,14 +104,14 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: "1 मिनट का टाइमर चल रहा है! नई राइड रोकी गई।" };
   }
 
-  // चेक करें कि संबंधित ऐप टॉगल ऑन है या नहीं
   const isAppAllowed = document.getElementById(`app${appName}`).checked;
   if (!isAppAllowed) {
     return { accept: false, reason: `${appName} राइड्स डिसेबल (बंद) की गई हैं!` };
   }
 
-  const minFare = parseFloat(document.getElementById('minFare').value) || 0;
-  const minDist = parseFloat(document.getElementById('minDist').value) || 0;
+  // अब यह हमेशा लेटेस्ट सेव वैल्यू चेक करेगा
+  const minFare = parseFloat(localStorage.getItem('minFareVal')) || 0;
+  const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
   if (fare < minFare) {
     return { accept: false, reason: `किराया कम है (₹${fare} < ₹${minFare})` };
@@ -126,9 +129,8 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `यह एरिया (${location}) ब्लॉक लिस्ट में है!` };
   }
 
-  // राइड एसेप्ट होने पर 1 मिनट का टाइमर चालू करें
   startCooldown();
-  return { accept: true, reason: `बढ़िया ${appName} राइड! एसेप्ट की जा रही है ✅ (1 Min Cooldown Started)` };
+  return { accept: true, reason: `बढ़िया ${appName} राइड! एसेप्ट की जा रही है ✅` };
 }
 
 testRideBtn.addEventListener('click', () => {
