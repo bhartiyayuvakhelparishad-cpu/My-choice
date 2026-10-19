@@ -8,7 +8,7 @@ let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage से सेव की हुई वैल्यूज लोड करना
+// LocalStorage se save ki hui values load karna
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
 let savedFare = localStorage.getItem('minFareVal') || "125";
 let savedDist = localStorage.getItem('minDistVal') || "5";
@@ -27,11 +27,11 @@ const minDistInput = document.getElementById('minDist');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const saveMsg = document.getElementById('saveMsg');
 
-// इनपुट में सेव की गई वैल्यू दिखाना
+// Input me saved values bharna
 minFareInput.value = savedFare;
 minDistInput.value = savedDist;
 
-// सेव बटन पर क्लिक करने पर ही सेटिंग्स परमानेंट स्टोर होंगी
+// Save button click hone par hi settings store hongi
 saveSettingsBtn.addEventListener('click', () => {
   const newFare = minFareInput.value.trim();
   const newDist = minDistInput.value.trim();
@@ -119,7 +119,6 @@ function checkRide(appName, fare, distance, location) {
     return { accept: false, reason: `${appName} राइड्स डिसेबल (बंद) की गई हैं!` };
   }
 
-  // सिर्फ सेव की गई वैल्यूज ही चेक होंगी
   const minFare = parseFloat(localStorage.getItem('minFareVal')) || 0;
   const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
