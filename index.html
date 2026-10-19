@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride Filter Bot</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>🚖 Auto Ride Filter</h1>
+      <p>Ola / Uber / Rapido Driver Assistant</p>
+    </header>
 
+    <!-- स्टेटस ब्लॉक -->
+    <div class="card">
+      <div id="statusBox" class="status-box inactive">फिल्टर बंद है (Inactive)</div>
+      <button id="toggleBtn" class="btn" style="margin-top: 10px;">फिल्टर चालू करें</button>
+    </div>
+
+    <!-- नियम सेट करने का ब्लॉक -->
+    <div class="card">
+      <h2>🎯 राइड सेटिंग्स (Rules)</h2>
+      
+      <div class="form-group">
+        <label for="minFare">न्यूनतम किराया (Min Fare ₹):</label>
+        <input type="number" id="minFare" placeholder="उदा. 200" value="150">
+      </div>
+
+      <div class="form-group">
+        <label for="minDist">न्यूनतम दूरी (Min Distance KM):</label>
+        <input type="number" id="minDist" placeholder="उदा. 8" value="5">
+      </div>
+
+      <div class="form-group">
+        <label for="blockArea">ब्लॉक एरिया (Blocked Areas):</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="blockAreaInput" placeholder="एरिया का नाम (उदा. Jamia)">
+          <button id="addAreaBtn" class="btn" style="width: 80px;">जोड़ें</button>
+        </div>
+      </div>
+
+      <div id="areaList" style="margin-top: 10px;">
+        <!-- जोड़े गए एरिया यहाँ दिखेंगे -->
+      </div>
+    </div>
+
+    <!-- राइड टेस्ट सिमुलेटर (Testing Box) -->
+    <div class="card">
+      <h2>🧪 राइड टेस्ट करें (Testing)</h2>
+      <div class="form-group">
+        <label for="testFare">टेस्ट किराया (₹):</label>
+        <input type="number" id="testFare" value="180">
+      </div>
+      <div class="form-group">
+        <label for="testDist">टेस्ट दूरी (KM):</label>
+        <input type="number" id="testDist" value="7">
+      </div>
+      <div class="form-group">
+        <label for="testLoc">टेस्ट ड्रॉप एरिया:</label>
+        <input type="text" id="testLoc" value="Connaught Place">
+      </div>
+      <button id="testRideBtn" class="btn btn-danger">राइड टेस्ट करें</button>
+      <div id="testResult" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
