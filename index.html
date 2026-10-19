@@ -38,12 +38,22 @@
       <h2>🎯 राइड सेटिंग्स (Rules)</h2>
       
       <div class="form-group">
-        <label for="minFare">न्यूनतम किराया (Min Fare ₹):</label>
+        <label for="minFare">न्यूनतम कुल किराया (Min Fare ₹):</label>
         <input type="number" id="minFare" placeholder="उदा. 125">
       </div>
 
       <div class="form-group">
-        <label for="minDist">न्यूनतम दूरी (Min Distance KM):</label>
+        <label for="minPerKmFare">न्यूनतम किराया प्रति KM (Min ₹/KM):</label>
+        <input type="number" step="0.1" id="minPerKmFare" placeholder="उदा. 7.50">
+      </div>
+
+      <div class="form-group">
+        <label for="maxPickupDist">अधिकतम पिकअप दूरी (Max Pickup KM):</label>
+        <input type="number" step="0.1" id="maxPickupDist" placeholder="उदा. 1.5">
+      </div>
+
+      <div class="form-group">
+        <label for="minDist">न्यूनतम ट्रिप दूरी (Min Distance KM):</label>
         <input type="number" id="minDist" placeholder="उदा. 5">
       </div>
 
@@ -78,8 +88,12 @@
         <input type="number" id="testFare" value="180">
       </div>
       <div class="form-group">
-        <label for="testDist">टेस्ट दूरी (KM):</label>
-        <input type="number" id="testDist" value="7">
+        <label for="testDist">टेस्ट ट्रिप दूरी (KM):</label>
+        <input type="number" id="testDist" value="10">
+      </div>
+      <div class="form-group">
+        <label for="testPickup">टेस्ट पिकअप दूरी (KM):</label>
+        <input type="number" id="testPickup" step="0.1" value="1.2">
       </div>
       <div class="form-group">
         <label for="testLoc">टेस्ट ड्रॉप एरिया:</label>
