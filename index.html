@@ -28,16 +28,23 @@
         
         <div id="adminLoginBox">
           <p style="font-size:13px; color:#cbd5e1;">Admin Password daalein:</p>
-          <input type="password" id="adminPassInput" placeholder="Password (Default: 7860)" style="width:100%; padding:10px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; margin-top:5px;">
+          <input type="password" id="adminPassInput" placeholder="Password daalein" style="width:100%; padding:10px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; margin-top:5px;">
           <button class="btn" onclick="verifyAdmin()" style="margin-top:10px; width:100%;">Login Karein</button>
         </div>
         
         <div id="adminDashboard" style="display:none;">
+          <!-- 🛠️ Password Change Section -->
+          <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #334155;">
+            <h3 style="font-size:13px; color:#f59e0b; margin-bottom: 5px;">🔑 Admin Password Badlein</h3>
+            <input type="password" id="newAdminPass" placeholder="Naya Admin Password" style="width:100%; padding:8px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:6px; margin-bottom: 6px;">
+            <button class="btn" onclick="changeAdminPassword()" style="background:#f59e0b; color:#000; font-weight:bold; padding:6px; font-size:12px; width:100%;">Password Update Karein</button>
+          </div>
+
           <h3 style="font-size:14px; color:#10b981;">➕ Naya User Add Karein</h3>
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
             <input type="text" id="newUserName" placeholder="Driver Name" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px;">
             <input type="tel" id="newUserPhone" placeholder="Mobile Number (10 Digit)" maxlength="10" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px;">
-            <input type="text" id="newUserCode" placeholder="8 Character Secret Code (Alphabet/Number)" maxlength="8" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; text-transform:uppercase;">
+            <input type="text" id="newUserCode" placeholder="8 Character Secret Code" maxlength="8" style="padding:8px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; text-transform:uppercase;">
             <button class="btn" onclick="addNewUser()" style="background:#10b981;">Save User & Key</button>
           </div>
 
