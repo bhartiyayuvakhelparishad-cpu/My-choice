@@ -15,92 +15,117 @@
       <p>Ola / Uber / Rapido / Porter Assistant</p>
     </header>
 
-    <!-- status block -->
-    <div class="card">
-      <div id="statusBox" class="status-box inactive">फिल्टर बंद है (Inactive)</div>
-      <button id="toggleBtn" class="btn" style="margin-top: 10px;">फिल्टर चालू करें</button>
-      <div id="cooldownMsg" style="margin-top: 8px; color: #f59e0b; font-weight: bold; text-align: center;"></div>
-    </div>
-
-    <!-- app select toggle -->
-    <div class="card">
-      <h2>📱 प्लेटफॉर्म चुनें (Enable Apps)</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
-        <label><input type="checkbox" id="appOla" checked> Ola</label>
-        <label><input type="checkbox" id="appUber" checked> Uber</label>
-        <label><input type="checkbox" id="appRapido" checked> Rapido</label>
-        <label><input type="checkbox" id="appPorter" checked> Porter</label>
-      </div>
-    </div>
-
-    <!-- rules settings with save button -->
-    <div class="card">
-      <h2>🎯 राइड सेटिंग्स (Rules)</h2>
+    <!-- 🔒 Mobile & Device Lock Screen -->
+    <div id="lockScreen" class="card" style="border: 2px solid #ef4444; text-align: center;">
+      <h2 style="color: #ef4444;">🔒 ऐप लॉक है (Locked)</h2>
+      <p style="font-size: 13px; margin: 8px 0; color: #cbd5e1;">ऐप एक्टिवेट कराने के लिए अपना मोबाइल नंबर दर्ज करें और डिटेल्स डेवलपर को WhatsApp करें।</p>
       
-      <div class="form-group">
-        <label for="minFare">न्यूनतम कुल किराया (Min Fare ₹):</label>
-        <input type="number" id="minFare" placeholder="उदा. 125">
+      <div class="form-group" style="text-align: left; margin-top: 10px;">
+        <label for="userPhoneInput">अपना मोबाइल नंबर दर्ज करें:</label>
+        <input type="tel" id="userPhoneInput" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10">
       </div>
 
-      <div class="form-group">
-        <label for="minPerKmFare">न्यूनतम किराया प्रति KM (Min ₹/KM):</label>
-        <input type="number" step="0.1" id="minPerKmFare" placeholder="उदा. 7.50">
+      <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: left;">
+        <span style="font-size: 12px; color: #94a3b8;">आपकी सिक्योरिटी डिवाइस आईडी:</span>
+        <div id="displayDeviceId" style="font-size: 16px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; margin-top: 2px;">...</div>
       </div>
 
-      <div class="form-group">
-        <label for="maxPickupDist">अधिकतम पिकअप दूरी (Max Pickup KM):</label>
-        <input type="number" step="0.1" id="maxPickupDist" placeholder="उदा. 1.5">
+      <div class="form-group" style="text-align: left;">
+        <label for="activationKeyInput">एक्टिवेशन की (Activation Key) दर्ज करें:</label>
+        <input type="text" id="activationKeyInput" placeholder="की यहाँ दर्ज करें">
       </div>
 
-      <div class="form-group">
-        <label for="minDist">न्यूनतम ट्रिप दूरी (Min Distance KM):</label>
-        <input type="number" id="minDist" placeholder="उदा. 5">
+      <button id="activateBtn" class="btn" style="background-color: #2563eb; width: 100%;">एक्टिवेट करें (Activate)</button>
+      <div id="lockMsg" style="margin-top: 10px; font-weight: bold; font-size: 13px;"></div>
+    </div>
+
+    <!-- 🔓 Main App Content -->
+    <div id="mainAppContent" style="display: none;">
+      
+      <div class="card">
+        <div id="statusBox" class="status-box inactive">फिल्टर बंद है (Inactive)</div>
+        <button id="toggleBtn" class="btn" style="margin-top: 10px;">फिल्टर चालू करें</button>
+        <div id="cooldownMsg" style="margin-top: 8px; color: #f59e0b; font-weight: bold; text-align: center;"></div>
       </div>
 
-      <button id="saveSettingsBtn" class="btn" style="background-color: #10b981; margin-bottom: 15px;">💾 सेटिंग्स सेव करें</button>
-      <div id="saveMsg" style="font-size: 13px; color: #10b981; margin-bottom: 10px; text-align: center; font-weight: bold;"></div>
-
-      <div class="form-group">
-        <label for="blockArea">ब्लॉक एरिया (Blocked Areas):</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="blockAreaInput" placeholder="एरिया का नाम (उदा. Jamia)">
-          <button id="addAreaBtn" class="btn" style="width: 80px;">जोड़ें</button>
+      <div class="card">
+        <h2>📱 प्लेटफॉर्म चुनें (Enable Apps)</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+          <label><input type="checkbox" id="appOla" checked> Ola</label>
+          <label><input type="checkbox" id="appUber" checked> Uber</label>
+          <label><input type="checkbox" id="appRapido" checked> Rapido</label>
+          <label><input type="checkbox" id="appPorter" checked> Porter</label>
         </div>
       </div>
 
-      <div id="areaList" style="margin-top: 10px;"></div>
-    </div>
+      <div class="card">
+        <h2>🎯 राइड सेटिंग्स (Rules)</h2>
+        
+        <div class="form-group">
+          <label for="minFare">न्यूनतम कुल किराया (Min Fare ₹):</label>
+          <input type="number" id="minFare" placeholder="उदा. 125">
+        </div>
 
-    <!-- testing simulator -->
-    <div class="card">
-      <h2>🧪 राइड टेस्ट करें (Testing)</h2>
-      <div class="form-group">
-        <label for="testApp">टेस्ट ऐप चुनें:</label>
-        <select id="testApp" style="width:100%; padding:10px; border-radius:8px; background:#0f172a; color:#fff;">
-          <option value="Ola">Ola</option>
-          <option value="Uber">Uber</option>
-          <option value="Rapido">Rapido</option>
-          <option value="Porter">Porter</option>
-        </select>
+        <div class="form-group">
+          <label for="minPerKmFare">न्यूनतम किराया प्रति KM (Min ₹/KM):</label>
+          <input type="number" step="0.1" id="minPerKmFare" placeholder="उदा. 7.50">
+        </div>
+
+        <div class="form-group">
+          <label for="maxPickupDist">अधिकतम पिकअप दूरी (Max Pickup KM):</label>
+          <input type="number" step="0.1" id="maxPickupDist" placeholder="उदा. 1.5">
+        </div>
+
+        <div class="form-group">
+          <label for="minDist">न्यूनतम ट्रिप दूरी (Min Distance KM):</label>
+          <input type="number" id="minDist" placeholder="उदा. 5">
+        </div>
+
+        <button id="saveSettingsBtn" class="btn" style="background-color: #10b981; margin-bottom: 15px;">💾 सेटिंग्स सेव करें</button>
+        <div id="saveMsg" style="font-size: 13px; color: #10b981; margin-bottom: 10px; text-align: center; font-weight: bold;"></div>
+
+        <div class="form-group">
+          <label for="blockArea">ब्लॉक एरिया (Blocked Areas):</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="blockAreaInput" placeholder="एरिया का नाम (उदा. Jamia)">
+            <button id="addAreaBtn" class="btn" style="width: 80px;">जोड़ें</button>
+          </div>
+        </div>
+
+        <div id="areaList" style="margin-top: 10px;"></div>
       </div>
-      <div class="form-group">
-        <label for="testFare">टेस्ट किराया (₹):</label>
-        <input type="number" id="testFare" value="180">
+
+      <div class="card">
+        <h2>🧪 राइड टेस्ट करें (Testing)</h2>
+        <div class="form-group">
+          <label for="testApp">टेस्ट ऐप चुनें:</label>
+          <select id="testApp" style="width:100%; padding:10px; border-radius:8px; background:#0f172a; color:#fff;">
+            <option value="Ola">Ola</option>
+            <option value="Uber">Uber</option>
+            <option value="Rapido">Rapido</option>
+            <option value="Porter">Porter</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="testFare">टेस्ट किराया (₹):</label>
+          <input type="number" id="testFare" value="180">
+        </div>
+        <div class="form-group">
+          <label for="testDist">टेस्ट ट्रिप दूरी (KM):</label>
+          <input type="number" id="testDist" value="10">
+        </div>
+        <div class="form-group">
+          <label for="testPickup">टेस्ट पिकअप दूरी (KM):</label>
+          <input type="number" id="testPickup" step="0.1" value="1.2">
+        </div>
+        <div class="form-group">
+          <label for="testLoc">टेस्ट ड्रॉप एरिया:</label>
+          <input type="text" id="testLoc" value="Connaught Place">
+        </div>
+        <button id="testRideBtn" class="btn btn-danger">राइड टेस्ट करें</button>
+        <div id="testResult" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
       </div>
-      <div class="form-group">
-        <label for="testDist">टेस्ट ट्रिप दूरी (KM):</label>
-        <input type="number" id="testDist" value="10">
-      </div>
-      <div class="form-group">
-        <label for="testPickup">टेस्ट पिकअप दूरी (KM):</label>
-        <input type="number" id="testPickup" step="0.1" value="1.2">
-      </div>
-      <div class="form-group">
-        <label for="testLoc">टेस्ट ड्रॉप एरिया:</label>
-        <input type="text" id="testLoc" value="Connaught Place">
-      </div>
-      <button id="testRideBtn" class="btn btn-danger">राइड टेस्ट करें</button>
-      <div id="testResult" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
+
     </div>
   </div>
 
