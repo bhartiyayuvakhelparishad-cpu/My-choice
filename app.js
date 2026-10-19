@@ -8,7 +8,7 @@ let isActive = false;
 let isCooldown = false;
 let cooldownTimer = null;
 
-// LocalStorage se save ki hui values load karna
+// LocalStorage se saved values load karna
 let blockedAreas = JSON.parse(localStorage.getItem('blockedAreas')) || ["Jamia", "Seelampur"];
 let savedFare = localStorage.getItem('minFareVal') || "125";
 let savedDist = localStorage.getItem('minDistVal') || "5";
@@ -27,11 +27,11 @@ const minDistInput = document.getElementById('minDist');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const saveMsg = document.getElementById('saveMsg');
 
-// Input me saved values bharna
+// Saved values set karna
 minFareInput.value = savedFare;
 minDistInput.value = savedDist;
 
-// Save button click hone par hi settings store hongi
+// Settings Save Button Logic
 saveSettingsBtn.addEventListener('click', () => {
   const newFare = minFareInput.value.trim();
   const newDist = minDistInput.value.trim();
@@ -88,46 +88,49 @@ toggleBtn.addEventListener('click', () => {
   }
 });
 
+// Pahli ride accept hone par 1 minute ka cooldown start karne wala function
 function startCooldown() {
   isCooldown = true;
   let seconds = 60;
-  cooldownMsg.textContent = `⏳ 1 मिनट का ब्रेक चालू (${seconds}s remaining)...`;
+  cooldownMsg.textContent = `⏳ 1 Min Cooldown Active (${seconds}s remaining)! Baaki apps band karein.`;
 
   cooldownTimer = setInterval(() => {
     seconds--;
     if (seconds > 0) {
-      cooldownMsg.textContent = `⏳ 1 मिनट का ब्रेक चालू (${seconds}s remaining)...`;
+      cooldownMsg.textContent = `⏳ 1 Min Cooldown Active (${seconds}s remaining)! Baaki apps band karein.`;
     } else {
       clearInterval(cooldownTimer);
       isCooldown = false;
-      cooldownMsg.textContent = "✅ रेडी! नई राइड के लिए फ़िल्टर तैयार है।";
+      cooldownMsg.textContent = "✅ Ready! Nayi ride ke liye filter taiyaar hai.";
     }
   }, 1000);
 }
 
+// Ride check karne ka main logic
 function checkRide(appName, fare, distance, location) {
   if (!isActive) {
-    return { accept: false, reason: "फिल्टर बंद है" };
+    return { accept: false, reason: "Filter band hai" };
   }
 
+  // 1 Min Cooldown Check: Agar pahli ride accept ho chuki hai, toh 60s tak koi doosri ride accept nahi hogi
   if (isCooldown) {
-    return { accept: false, reason: "⏳ 1 मिनट का कूलडाउन टाइमर चल रहा है!" };
+    return { accept: false, reason: `⛔ 1 Min Cooldown active! Ek ride pehle hi accept ho chuki hai (${appName} ride blocked).` };
   }
 
   const isAppAllowed = document.getElementById(`app${appName}`).checked;
   if (!isAppAllowed) {
-    return { accept: false, reason: `${appName} राइड्स डिसेबल (बंद) की गई हैं!` };
+    return { accept: false, reason: `${appName} rides disabled hain!` };
   }
 
   const minFare = parseFloat(localStorage.getItem('minFareVal')) || 0;
   const minDist = parseFloat(localStorage.getItem('minDistVal')) || 0;
 
   if (fare < minFare) {
-    return { accept: false, reason: `किराया कम है (₹${fare} < ₹${minFare})` };
+    return { accept: false, reason: `Fare kam hai (₹${fare} < ₹${minFare})` };
   }
 
   if (distance < minDist) {
-    return { accept: false, reason: `दूरी कम है (${distance} KM < ${minDist} KM)` };
+    return { accept: false, reason: `Distance kam hai (${distance} KM < ${minDist} KM)` };
   }
 
   const isBlocked = blockedAreas.some(area => 
@@ -135,11 +138,12 @@ function checkRide(appName, fare, distance, location) {
   );
 
   if (isBlocked) {
-    return { accept: false, reason: `यह एरिया (${location}) ब्लॉक लिस्ट में है!` };
+    return { accept: false, reason: `Area (${location}) blocked list me hai!` };
   }
 
+  // PAHLI RIDE ACCEPT HOTE HI COOLDOWN TIMER SHURU HOGA
   startCooldown();
-  return { accept: true, reason: `बढ़िया ${appName} राइड! एसेप्ट की जा रही है ✅` };
+  return { accept: true, reason: `🎉 ${appName} Ride Accepted! 1 minute ka timer shuru ho gaya hai. Baaki apps (Ola/Uber) manual close karein.` };
 }
 
 testRideBtn.addEventListener('click', () => {
@@ -153,7 +157,7 @@ testRideBtn.addEventListener('click', () => {
   if (result.accept) {
     testResult.style.color = "#10b981";
     testResult.textContent = "🟢 " + result.reason;
-    alert(`🚨 RIDE ACCEPTED (${appName})!\n1 मिनट का कूलडाउन शुरू हो गया है।`);
+    alert(`🚨 RIDE ACCEPTED (${appName})!\n\n1 minute ka cooldown chalu hai. Kripya baki apps ko manual close/offline karein!`);
   } else {
     testResult.style.color = "#ef4444";
     testResult.textContent = "🔴 " + result.reason;
