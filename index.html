@@ -11,14 +11,26 @@
 <body>
   <div class="app-container">
     <header>
-      <h1>🚖 Auto Ride Filter</h1>
-      <p>Ola / Uber / Rapido Driver Assistant</p>
+      <h1>🚖 Auto Ride Filter Pro</h1>
+      <p>Ola / Uber / Rapido / Porter Assistant</p>
     </header>
 
     <!-- स्टेटस ब्लॉक -->
     <div class="card">
       <div id="statusBox" class="status-box inactive">फिल्टर बंद है (Inactive)</div>
       <button id="toggleBtn" class="btn" style="margin-top: 10px;">फिल्टर चालू करें</button>
+      <div id="cooldownMsg" style="margin-top: 8px; color: #f59e0b; font-weight: bold; text-align: center;"></div>
+    </div>
+
+    <!-- ऐप सेलेक्ट टॉगल (Ola, Uber, Rapido, Porter) -->
+    <div class="card">
+      <h2>📱 प्लेटफॉर्म चुनें (Enable Apps)</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        <label><input type="checkbox" id="appOla" checked> Ola</label>
+        <label><input type="checkbox" id="appUber" checked> Uber</label>
+        <label><input type="checkbox" id="appRapido" checked> Rapido</label>
+        <label><input type="checkbox" id="appPorter" checked> Porter</label>
+      </div>
     </div>
 
     <!-- नियम सेट करने का ब्लॉक -->
@@ -27,12 +39,12 @@
       
       <div class="form-group">
         <label for="minFare">न्यूनतम किराया (Min Fare ₹):</label>
-        <input type="number" id="minFare" placeholder="उदा. 200" value="150">
+        <input type="number" id="minFare" placeholder="उदा. 125" value="125">
       </div>
 
       <div class="form-group">
         <label for="minDist">न्यूनतम दूरी (Min Distance KM):</label>
-        <input type="number" id="minDist" placeholder="उदा. 8" value="5">
+        <input type="number" id="minDist" placeholder="उदा. 5" value="5">
       </div>
 
       <div class="form-group">
@@ -43,14 +55,21 @@
         </div>
       </div>
 
-      <div id="areaList" style="margin-top: 10px;">
-        <!-- जोड़े गए एरिया यहाँ दिखेंगे -->
-      </div>
+      <div id="areaList" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- राइड टेस्ट सिमुलेटर (Testing Box) -->
+    <!-- राइड टेस्ट सिमुलेटर -->
     <div class="card">
       <h2>🧪 राइड टेस्ट करें (Testing)</h2>
+      <div class="form-group">
+        <label for="testApp">टेस्ट ऐप चुनें:</label>
+        <select id="testApp" style="width:100%; padding:10px; border-radius:8px; background:#0f172a; color:#fff;">
+          <option value="Ola">Ola</option>
+          <option value="Uber">Uber</option>
+          <option value="Rapido">Rapido</option>
+          <option value="Porter">Porter</option>
+        </select>
+      </div>
       <div class="form-group">
         <label for="testFare">टेस्ट किराया (₹):</label>
         <input type="number" id="testFare" value="180">
