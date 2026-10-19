@@ -13,26 +13,46 @@
     <header>
       <h1>🚖 Auto Ride Filter Pro</h1>
       <p>Ola / Uber / Rapido / Porter Assistant</p>
+      <!-- Chhota sa Admin Panel Button -->
+      <button onclick="openAdminPanel()" style="background:transparent; border:none; color:#94a3b8; font-size:11px; margin-top:4px; cursor:pointer;">⚙️ Admin Key Manager</button>
     </header>
 
-    <!-- 🔒 Mobile & Device Lock Screen -->
+    <!-- 🔐 Secret Admin Modal / Panel -->
+    <div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; padding:20px; box-sizing:border-box;">
+      <div class="card" style="border: 2px solid #38bdf8; max-width: 400px; margin: 40px auto;">
+        <h2>🔐 Admin Panel</h2>
+        <div id="adminLoginBox">
+          <p style="font-size:13px; color:#cbd5e1;">Admin Password daalein:</p>
+          <input type="password" id="adminPassInput" placeholder="Password daalein" style="width:100%; padding:10px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; margin-top:5px;">
+          <button class="btn" onclick="verifyAdmin()" style="margin-top:10px; width:100%;">Login Karein</button>
+        </div>
+        
+        <div id="adminDashboard" style="display:none;">
+          <p style="font-size:13px; color:#10b981; font-weight:bold; margin-bottom:10px;">✅ Admin Access Granted</p>
+          <label style="font-size:12px;">Driver ka 10-digit Mobile Number:</label>
+          <input type="tel" id="checkPhoneInput" placeholder="उदा. 9876543210" maxlength="10" style="width:100%; padding:10px; background:#0f172a; color:#fff; border:1px solid #334155; border-radius:6px; margin-top:5px;">
+          <button class="btn" onclick="generateKeyForAdmin()" style="margin-top:10px; width:100%; background:#10b981;">Key Dekhein</button>
+          
+          <div id="adminKeyResult" style="margin-top:15px; font-size:16px; font-weight:bold; color:#38bdf8; text-align:center;"></div>
+        </div>
+
+        <button onclick="closeAdminPanel()" class="btn btn-danger" style="margin-top:15px; width:100%;">Band Karein</button>
+      </div>
+    </div>
+
+    <!-- 🔒 Mobile Number Lock Screen -->
     <div id="lockScreen" class="card" style="border: 2px solid #ef4444; text-align: center;">
       <h2 style="color: #ef4444;">🔒 ऐप लॉक है (Locked)</h2>
-      <p style="font-size: 13px; margin: 8px 0; color: #cbd5e1;">ऐप एक्टिवेट कराने के लिए अपना मोबाइल नंबर दर्ज करें और डिटेल्स डेवलपर को WhatsApp करें।</p>
+      <p style="font-size: 13px; margin: 8px 0; color: #cbd5e1;">ऐप चालू करने के लिए अपना मोबाइल नंबर दर्ज करें और डेवलपर से Activation Key लें।</p>
       
       <div class="form-group" style="text-align: left; margin-top: 10px;">
         <label for="userPhoneInput">अपना मोबाइल नंबर दर्ज करें:</label>
         <input type="tel" id="userPhoneInput" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10">
       </div>
 
-      <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: left;">
-        <span style="font-size: 12px; color: #94a3b8;">आपकी सिक्योरिटी डिवाइस आईडी:</span>
-        <div id="displayDeviceId" style="font-size: 16px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; margin-top: 2px;">...</div>
-      </div>
-
       <div class="form-group" style="text-align: left;">
-        <label for="activationKeyInput">एक्टिवेशन की (Activation Key) दर्ज करें:</label>
-        <input type="text" id="activationKeyInput" placeholder="की यहाँ दर्ज करें">
+        <label for="activationKeyInput">Activation Key दर्ज करें:</label>
+        <input type="text" id="activationKeyInput" placeholder="Key यहाँ दर्ज करें">
       </div>
 
       <button id="activateBtn" class="btn" style="background-color: #2563eb; width: 100%;">एक्टिवेट करें (Activate)</button>
